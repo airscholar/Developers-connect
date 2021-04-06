@@ -21,7 +21,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/v1/users', usersRouter);
-app.use('/api/v1/profile', profilesRouter);
+app.use('/api/v1/profiles', profilesRouter);
 app.use('/api/v1/posts', postsRouter);
 app.use('/api/v1/auth', authRouter);
 

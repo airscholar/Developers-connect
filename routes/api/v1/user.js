@@ -90,6 +90,10 @@ router.post(
       );
     } catch (error) {
       console.log(error);
+      return res.status(200).json({
+        message: 'User registered',
+        token,
+      });
     }
   }
 );

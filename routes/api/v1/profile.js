@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { check, validationResult } = require('express-validator');
 const { authenticate } = require('../../../middleware/auth.middleware');
 const Profile = require('../../../models/Profile');
 
@@ -25,5 +26,94 @@ router.get('/me', authenticate, async (req, res) => {
     result: profile,
   });
 });
+
+// @route   GET api/v1/profile
+// @desc    get profile route
+// @access  Public
+router.get('/', authenticate, async (req, res) => {
+  const profiles = await Profile.find().populate('user', ['name', 'avatar']);
+
+  res.status(200).json({
+    result: profiles,
+  });
+});
+
+// @route   POST api/v1/profile
+// @desc    Create or update user profile route
+// @access  Private
+router.post(
+  '/',
+  [
+    authenticate,
+    check('status', 'Status is required').not().isEmpty(),
+    check('skills', 'Skills is required').not().isEmpty(),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const {
+      company,
+      website,
+      location,
+      bio,
+      status,
+      githubusername,
+      skills,
+      youtube,
+      facebook,
+      twitter,
+      instagram,
+      linkedin,
+    } = req.body;
+
+    // build profile object
+    const profileFields = {};
+    profileFields.user = req.user.id;
+    if (company) profileFields.company = company;
+    if (website) profileFields.website = website;
+    if (location) profileFields.location = location;
+    if (bio) profileFields.bio = bio;
+    if (status) profileFields.status = status;
+    if (githubusername) profileFields.githubusername = githubusername;
+    if (skills)
+      profileFields.skills = skills.split(',').map(skill => skill.trim());
+
+    // build social object
+    profileFields.social = {};
+    if (youtube) profileFields.social.youtube = youtube;
+    if (twitter) profileFields.social.twitter = twitter;
+    if (facebook) profileFields.social.facebook = facebook;
+    if (instagram) profileFields.social.instagram = instagram;
+    if (linkedin) profileFields.social.linkedin = linkedin;
+    // const profiles = await Profile.find().populate('user', ['name', 'avatar']);
+
+    try {
+      let profile = await Profile.findOne({ user: req.user.id });
+      if (profile) {
+        //  update
+        await Profile.findOneAndUpdate(
+          { user: req.user.id },
+          { $set: profileFields },
+          { new: true, useFindAndModify: false }
+        );
+
+        return res.status(200).json({
+          result: profile,
+        });
+      }
+
+      profile = await new Profile(profileFields).save();
+      res.status(200).json({
+        result: profile,
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+);
 
 module.exports = router;

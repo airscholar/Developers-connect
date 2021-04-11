@@ -27,7 +27,7 @@ const ProfileSchema = new mongoose.Schema({
       company: { type: String, required: true },
       location: { type: String },
       from: { type: Date, required: true },
-      to: { type: Date, required: true },
+      to: { type: Date },
       current: { type: Boolean, required: true, default: false },
       description: { type: String },
     },

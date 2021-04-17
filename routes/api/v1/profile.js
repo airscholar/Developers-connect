@@ -44,6 +44,30 @@ router.get('/', async (req, res) => {
   }
 });
 
+// @route   GET api/v1/profile/user/:user_id
+// @desc    get profile by user id route
+// @access  Public
+router.get('/user/:user_id', async (req, res) => {
+  try {
+    const profile = await Profile.findOne({
+      user: req.params.user_id,
+    }).populate('user', ['name', 'avatar']);
+
+    if (!profile) {
+      return res.status(400).json({
+        message: 'There is no profile for this user',
+      });
+    }
+    res.status(200).json({
+      result: profiles,
+    });
+  } catch (err) {
+    res.status(500).json({
+      result: 'Server error',
+    });
+  }
+});
+
 // @route   POST api/v1/profile
 // @desc    Create or update user profile route
 // @access  Private

@@ -30,12 +30,18 @@ router.get('/me', authenticate, async (req, res) => {
 // @route   GET api/v1/profile
 // @desc    get profile route
 // @access  Public
-router.get('/', authenticate, async (req, res) => {
-  const profiles = await Profile.find().populate('user', ['name', 'avatar']);
+router.get('/', async (req, res) => {
+  try {
+    const profiles = await Profile.find().populate('user', ['name', 'avatar']);
 
-  res.status(200).json({
-    result: profiles,
-  });
+    res.status(200).json({
+      result: profiles,
+    });
+  } catch (err) {
+    res.status(500).json({
+      result: 'Server error',
+    });
+  }
 });
 
 // @route   POST api/v1/profile

@@ -220,9 +220,9 @@ router.put(
 
       if (profile.experience) {
         profile.experience.unshift(newExp);
+      } else {
+        profile.experience = newExp;
       }
-
-      profile.experience = newExp;
 
       await profile.save();
 
